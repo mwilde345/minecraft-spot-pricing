@@ -116,37 +116,36 @@ Parameters:
 
   MaxPlayers:
     Type: Number
-    Description: Max number of players that can connect simultaneously (default 20)
+    Description: Max number of players that can connect simultaneously (default 10)
+    Default: -1
+
+  MaxThreads:
+    Type: Number
+    Description: Maximum number of threads the server tries to use. If set to 0 or removed then it uses as many as possible.  (default 8)
     Default: -1
 
   ViewDistance:
     Type: Number
-    Description: Max view radius (in chunks) the server will send to the client (default 10)
+    Description: Max view radius (in chunks) the server will send to the client (default 32)
     Default: -1
 
   GameMode:
     Type: String
-    Description: "Options: creative, survival (default), adventure, spectator (v1.8+)"
+    Description: "Options: creative, survival (default), adventure"
     Default: survival
     AllowedValues:
       - creative
       - survival
       - adventure
-      - spectator
 
   LevelType:
     Type: String
-    Description: "Options: DEFAULT, FLAT, LARGEBIOMES, AMPLIFIED, CUSTOMIZED, BUFFET, BIOMESOP (v1.12-), BIOMESOPLENTY (v1.15+)"
+    Description: "Options: DEFAULT, FLAT, LEGACY"
     Default: DEFAULT
     AllowedValues:
       - DEFAULT
       - FLAT
-      - LARGEBIOMES
-      - AMPLIFIED
-      - CUSTOMIZED
-      - BUFFET
-      - BIOMESOP
-      - BIOMESOPLENTY
+      - LEGACY
 
   EnableRollingLogs:
     Type: String
@@ -183,6 +182,7 @@ Metadata:
           - Seed
           - MaxPlayers
           - ViewDistance
+          - MaxThreads
           - GameMode
           - LevelType
           - EnableRollingLogs
@@ -252,6 +252,8 @@ Metadata:
         default: "Max simultaneous players"
       ViewDistance:
         default: "Max view distance"
+      MaxThreads:
+        default: "Max threads"
       GameMode:
         default: "The Minecraft game mode"
       LevelType:
@@ -282,6 +284,7 @@ Conditions:
   SeedProvided: !Not [!Equals [!Ref Seed, ""]]
   MaxPlayersProvided: !Not [!Equals [!Ref MaxPlayers, -1]]
   ViewDistanceProvided: !Not [!Equals [!Ref ViewDistance, -1]]
+  MaxThreadsProvided: !Not [!Equals [!Ref MaxThreads, -1]]
   GameModeProvided: !Not [!Equals [!Ref GameMode, ""]]
   LevelTypeProvided: !Not [!Equals [!Ref LevelType, ""]]
   EnableRollingLogsProvided: !Not [!Equals [!Ref EnableRollingLogs, ""]]
@@ -608,6 +611,11 @@ Resources:
               - ViewDistanceProvided
               - Name: "VIEW_DISTANCE"
                 Value: !Sub "${ViewDistance}"
+              - !Ref "AWS::NoValue"
+            - !If
+              - MaxThreadsProvided
+              - Name: "MAX_THREADS"
+                Value: !Sub "${MaxThreads}"
               - !Ref "AWS::NoValue"
             - !If
               - GameModeProvided
