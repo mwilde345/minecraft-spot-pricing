@@ -85,10 +85,6 @@ Parameters:
     Description: "Java version (Examples include latest, adopt13, openj9, etc) Refer to tag descriptions available here: https://github.com/itzg/docker-minecraft-server)"
     Default: "latest"
 
-  MinecraftTypeTag:
-    Type: String
-    Description: "(Examples include SPIGOT, BUKKIT, TUINITY, etc) Refer to tag descriptions available here: https://github.com/itzg/docker-minecraft-server)"
-
   AdminPlayerNames:
     Type: String
     Description: Op/Administrator Players
@@ -113,11 +109,6 @@ Parameters:
     Type: String
     Description: Server minecraft version
     Default: ""
-
-  Memory:
-    Type: String
-    Description: How much Memory to allocate for the JVM
-    Default: "1G"
 
   Seed:
     Type: String
@@ -185,12 +176,10 @@ Metadata:
       - Label:
           default: Optional Server Settings
         Parameters:
-          - MinecraftTypeTag
           - AdminPlayerNames
           - Difficulty
           - Whitelist
           - MinecraftVersion
-          - Memory
           - Seed
           - MaxPlayers
           - ViewDistance
@@ -227,8 +216,6 @@ Metadata:
         default: "Maximum spot price per hour? Leave blank to disable spot pricing."
       MinecraftImageTag:
         default: "Which version of Minecraft do you want to launch?"
-      MinecraftTypeTag:
-        default: "Which type of Minecraft do you want to launch?"
       AdminPlayerNames:
         default: "A comma delimited list (no spaces) of player names to be admins"
       Difficulty:
@@ -259,8 +246,6 @@ Metadata:
         default: "If you have a hosted zone in Route 53 and wish to update a DNS record whenever your Minecraft instance starts, supply the hosted zone ID here."
       RecordName:
         default: "If you have a hosted zone in Route 53 and wish to set a DNS record whenever your Minecraft instance starts, supply a record name here (e.g. minecraft.mydomain.com)."
-      Memory:
-        default: "If you wish to increase the Java memory-heap limit of 1GB. Format: <size>[g|G|m|M|k|K]"
       Seed:
         default: "Seed for world generation"
       MaxPlayers:
@@ -277,7 +262,6 @@ Metadata:
         default: "The server's timezone"
 
 Conditions:
-  MinecraftTypeTagProvided: !Not [!Equals [!Ref MinecraftTypeTag, ""]]
   AdminPlayerNamesProvided: !Not [!Equals [!Ref AdminPlayerNames, ""]]
   DifficultyProvided: !Not [!Equals [!Ref Difficulty, ""]]
   WhitelistProvided: !Not [!Equals [!Ref Whitelist, ""]]
@@ -295,7 +279,6 @@ Conditions:
       !Not [!Equals [!Ref RecordName, ""]],
     ]
   SpotPriceProvided: !Not [!Equals [!Ref SpotPrice, ""]]
-  MemoryProvided: !Not [!Equals [!Ref Memory, ""]]
   SeedProvided: !Not [!Equals [!Ref Seed, ""]]
   MaxPlayersProvided: !Not [!Equals [!Ref MaxPlayers, -1]]
   ViewDistanceProvided: !Not [!Equals [!Ref ViewDistance, -1]]
@@ -592,11 +575,6 @@ Resources:
             - Name: "EULA"
               Value: "TRUE"
             - !If
-              - MinecraftTypeTagProvided
-              - Name: "TYPE"
-                Value: !Sub "${MinecraftTypeTag}"
-              - !Ref "AWS::NoValue"
-            - !If
               - AdminPlayerNamesProvided
               - Name: "OPS"
                 Value: !Sub "${AdminPlayerNames}"
@@ -608,7 +586,7 @@ Resources:
               - !Ref "AWS::NoValue"
             - !If
               - WhitelistProvided
-              - Name: "WHITELIST"
+              - Name: "WHITE_LIST"
                 Value: !Sub "${Whitelist}"
               - !Ref "AWS::NoValue"
             - !If
@@ -617,13 +595,8 @@ Resources:
                 Value: !Sub "${MinecraftVersion}"
               - !Ref "AWS::NoValue"
             - !If
-              - MemoryProvided
-              - Name: "MEMORY"
-                Value: !Sub "${Memory}"
-              - !Ref "AWS::NoValue"
-            - !If
               - SeedProvided
-              - Name: "SEED"
+              - Name: "LEVEL_SEED"
                 Value: !Sub "${Seed}"
               - !Ref "AWS::NoValue"
             - !If
@@ -638,7 +611,7 @@ Resources:
               - !Ref "AWS::NoValue"
             - !If
               - GameModeProvided
-              - Name: "MODE"
+              - Name: "GAMEMODE"
                 Value: !Sub "${GameMode}"
               - !Ref "AWS::NoValue"
             - !If
